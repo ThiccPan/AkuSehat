@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "256971502589",
+    "firebase_url": "https://akusehat-754eb-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "akusehat-754eb",
+    "storage_bucket": "akusehat-754eb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256971502589:android:4996a8717ab0e780fe1f94",
+        "android_client_info": {
+          "package_name": "com.example.akusehat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256971502589-5k2t4rurueiqgi261m6vg9m1frhenne2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZjMi5gOBrXF_2m7SGLcio5SrmUyNq8D4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256971502589-5k2t4rurueiqgi261m6vg9m1frhenne2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
