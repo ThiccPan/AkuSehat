@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:background="@drawable/et_input"
-        android:fontFamily="@font/inter"
+        android:fontFamily="@font/poppins"
         android:hint="Email"
         android:padding="10dp"
         android:textSize="14sp"
@@ -69,12 +69,13 @@
         android:id="@+id/password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+
         android:background="@drawable/et_input"
-        android:fontFamily="@font/inter"
+        android:fontFamily="@font/poppins"
         android:hint="Password"
         android:padding="10dp"
         android:textSize="14sp"
-        android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -102,7 +103,7 @@
         android:text="Masuk"
         android:textAllCaps="false"
         android:textSize="15sp"
-        android:fontFamily="@font/inter"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lupa" />

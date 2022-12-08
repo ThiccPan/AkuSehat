@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AkuSehat</string>
+    <string name="greeting">Hello!</string>
+    <string name="imunisasi">Imunisasi</string>
 </resources>
