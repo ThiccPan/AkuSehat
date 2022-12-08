@@ -132,7 +132,9 @@
         android:textColor="@color/biru"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/masuk" />
+        app:layout_constraintTop_toBottomOf="@+id/masuk"
+        android:onClick="onClick"
+        android:clickable="true"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

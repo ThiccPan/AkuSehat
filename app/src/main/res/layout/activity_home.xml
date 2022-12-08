@@ -53,12 +53,18 @@
             app:cardElevation="3dp"
             android:layout_marginRight="16dp">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="142dp"
+                android:layout_gravity="top|center_horizontal"
+                android:src="@drawable/home_img_1" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/imunisasi"
                 android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginBottom="14dp"
+                android:text="@string/imunisasi" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
