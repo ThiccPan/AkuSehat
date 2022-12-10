@@ -3,4 +3,20 @@
     <string name="greeting">Hello!</string>
     <string name="imunisasi">Imunisasi</string>
     <string name="daftar">Daftar</string>
+    <string name="nama_anak">Nama anak</string>
+    <string name="umur_anak">Umur anak</string>
+    <string name="tanggal_lahir">Tanggal lahir</string>
+    <string name="tanggal_vaksin">Tanggal vaksin</string>
+    <string-array name="jenis_vaksin">
+        <item>Polio</item>
+        <item>Hepatitis A</item>
+        <item>Hepatitis B</item>
+        <item>Tifoid</item>
+    </string-array>
+    <string-array name="vaksin_ke">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
 </resources>

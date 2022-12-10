@@ -11,4 +11,6 @@
     <color name="bg">#E9EAF5</color>
     <color name="ungu">#8286B8</color>
     <color name="biru">#5B96F5</color>
+    <color name="button_purple">#9095CC</color>
+    <color name="red_cancel">#FD0101</color>
 </resources>
