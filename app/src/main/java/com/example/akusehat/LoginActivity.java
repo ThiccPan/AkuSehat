@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void nextActivity(boolean isSuccess, String message) {
         Toast.makeText(LoginActivity.this,message, Toast.LENGTH_SHORT).show();
         if (isSuccess) {
-            Intent intent = new Intent(this, HomeActivity.class);
+            Intent intent = new Intent(this, InsertVaksinActivity.class);
             startActivity(intent);
         }
     }

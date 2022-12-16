@@ -14,12 +14,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class InsertVaksinActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     EditText namaAnak, umurAnak, tanggalLahir, tanggalVaksin;
@@ -27,14 +29,14 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
     ImageButton gambarVaksin;
     String jenisVaksin = "kosong";
     int vaksinKe = 0;
+    int hariLahir, bulanLahir, tahunLahir;
+    int hariVaksin, bulanVaksin, tahunVaksin;
 
     // firebase component
     private FirebaseAuth mAuth;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
-    private int year;
-    private int month;
-    private int day;
+    private int year, month, day;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         // form and button init
         namaAnak = findViewById(R.id.namaAnak);
         umurAnak = findViewById(R.id.umurAnak);
+
         tanggalLahir = findViewById(R.id.tanggalLahir);
         tanggalVaksin = findViewById(R.id.tanggalVaksin);
         simpanVaksin = findViewById(R.id.simpanVaksin);
@@ -56,6 +59,7 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
                 R.array.jenis_vaksin, android.R.layout.simple_spinner_item);
         adapterJenis.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerVaksin.setAdapter(adapterJenis);
+        spinnerVaksin.setOnItemSelectedListener(this);
 
         // vaksinKe spinner init
         Spinner spinnerJumlahVaksin = (Spinner) findViewById(R.id.vaksinKe);
@@ -63,6 +67,7 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
                 R.array.vaksin_ke, android.R.layout.simple_spinner_item);
         adapterJumlah.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerJumlahVaksin.setAdapter(adapterJumlah);
+        spinnerJumlahVaksin.setOnItemSelectedListener(this);
 
         // firebase component init
         mAuth = FirebaseAuth.getInstance();
@@ -106,7 +111,8 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.simpanVaksin) {
-            uploadData();
+            uploadData(namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
+                    ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
         } else if (view.getId() == R.id.batalVaksin) {
             clearData();
         } else if (view.getId() == R.id.tanggalLahir) {
@@ -122,16 +128,33 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
             month += 1;
             String date = dayOfMonth+"/"+month+"/"+year;
             if (viewId == R.id.tanggalLahir) {
+                hariLahir = dayOfMonth;
+                bulanLahir = month;
+                tahunLahir = year;
                 tanggalLahir.setText(date);
             } else if (viewId == R.id.tanggalVaksin) {
+                hariVaksin = dayOfMonth;
+                bulanVaksin = month;
+                tahunVaksin = year;
                 tanggalVaksin.setText(date);
             }
         }, year, month, day);
         datePickerDialog.show();
     }
 
-    private void uploadData() {
-
+    private void uploadData(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
+                            int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
+        Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir, tahunLahir,
+                hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe);
+        databaseReference.child(Objects.requireNonNull(mAuth.getUid()))
+                .push()
+                .setValue(imunisasi)
+                .addOnSuccessListener(this,
+                        unused -> Toast.makeText(InsertVaksinActivity.this, "Tambah " +
+                                        "data berhasil!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(this,
+                        e -> Toast.makeText(InsertVaksinActivity.this,
+                                "Gagal menambah data", Toast.LENGTH_SHORT).show());
     }
 
     private void clearData() {

@@ -3,13 +3,15 @@ package com.example.akusehat;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.time.LocalDate;
-
 public class Imunisasi implements Parcelable {
     private String namaAnak;
     private int umur;
-    private LocalDate tanggalLahir;
-    private LocalDate tanggalVaksin;
+    private int hariLahir;
+    private int bulanLahir;
+    private int tahunLahir;
+    private int hariVaksin;
+    private int bulanVaksin;
+    private int tahunVaksin;
     private String jenisVaksin;
     private int vaksinKe;
 
@@ -29,20 +31,20 @@ public class Imunisasi implements Parcelable {
         this.umur = umur;
     }
 
-    public LocalDate getTanggalLahir() {
-        return tanggalLahir;
+    public int getHariLahir() {
+        return hariLahir;
     }
 
-    public void setTanggalLahir(LocalDate tanggalLahir) {
-        this.tanggalLahir = tanggalLahir;
+    public void setHariLahir(int hariLahir) {
+        this.hariLahir = hariLahir;
     }
 
-    public LocalDate getTanggalVaksin() {
-        return tanggalVaksin;
+    public int getHariVaksin() {
+        return hariVaksin;
     }
 
-    public void setTanggalVaksin(LocalDate tanggalVaksin) {
-        this.tanggalVaksin = tanggalVaksin;
+    public void setHariVaksin(int hariVaksin) {
+        this.hariVaksin = hariVaksin;
     }
 
     public String getJenisVaksin() {
@@ -66,14 +68,50 @@ public class Imunisasi implements Parcelable {
         umur = in.readInt();
     }
 
-    public Imunisasi(String namaAnak, int umur, LocalDate tanggalLahir, LocalDate tanggalVaksin,
-                     String jenisVaksin, int vaksinKe) {
+    public Imunisasi(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
+                     int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
         this.namaAnak = namaAnak;
         this.umur = umur;
-        this.tanggalLahir = tanggalLahir;
-        this.tanggalVaksin = tanggalVaksin;
+        this.hariLahir = hariLahir;
+        this.bulanLahir = bulanLahir;
+        this.tahunLahir = tahunLahir;
+        this.hariVaksin = hariVaksin;
+        this.bulanVaksin = bulanVaksin;
+        this.tahunVaksin = tahunVaksin;
         this.jenisVaksin = jenisVaksin;
         this.vaksinKe = vaksinKe;
+    }
+
+    public int getBulanLahir() {
+        return bulanLahir;
+    }
+
+    public void setBulanLahir(int bulanLahir) {
+        this.bulanLahir = bulanLahir;
+    }
+
+    public int getTahunLahir() {
+        return tahunLahir;
+    }
+
+    public void setTahunLahir(int tahunLahir) {
+        this.tahunLahir = tahunLahir;
+    }
+
+    public int getBulanVaksin() {
+        return bulanVaksin;
+    }
+
+    public void setBulanVaksin(int bulanVaksin) {
+        this.bulanVaksin = bulanVaksin;
+    }
+
+    public int getTahunVaksin() {
+        return tahunVaksin;
+    }
+
+    public void setTahunVaksin(int tahunVaksin) {
+        this.tahunVaksin = tahunVaksin;
     }
 
     public static final Creator<Imunisasi> CREATOR = new Creator<Imunisasi>() {
