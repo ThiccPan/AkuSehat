@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,6 +26,7 @@ import java.util.Calendar;
 import java.util.Objects;
 
 public class InsertVaksinActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+    TextView judulHalaman;
     EditText namaAnak, umurAnak, tanggalLahir, tanggalVaksin;
     Button simpanVaksin, batalVaksin;
     ImageButton gambarVaksin;
@@ -31,6 +34,8 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
     int vaksinKe = 0;
     int hariLahir, bulanLahir, tahunLahir;
     int hariVaksin, bulanVaksin, tahunVaksin;
+    Imunisasi editData;
+    boolean isEdit = false;
 
     // firebase component
     private FirebaseAuth mAuth;
@@ -84,6 +89,31 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
 
+        // check if user currently adding new/update existing imunisasi
+        editData = getIntent().getParcelableExtra("data_imunisasi");
+        if (!Objects.isNull(editData)) {
+            judulHalaman = findViewById(R.id.judulHalamanForm);
+            judulHalaman.setText("Edit Data Imunisasi");
+            simpanVaksin.setText("Simpan Perubahan");
+            isEdit = true;
+
+            //default value
+            namaAnak.setText(editData.getNamaAnak(), TextView.BufferType.EDITABLE);
+            umurAnak.setText(String.valueOf(editData.getUmur()), TextView.BufferType.EDITABLE);
+
+            hariLahir = editData.getHariLahir();
+            bulanLahir = editData.getBulanLahir();
+            tahunLahir = editData.getTahunLahir();
+            String textTanggalLahir = hariLahir+"/"+bulanLahir+"/"+tahunLahir;
+            tanggalLahir.setText(textTanggalLahir, TextView.BufferType.EDITABLE);
+
+            hariVaksin = editData.getHariVaksin();
+            bulanVaksin = editData.getBulanVaksin();
+            tahunVaksin = editData.getTahunVaksin();
+            String textTanggalVaksin = hariVaksin+"/"+bulanVaksin+"/"+tahunVaksin;
+            tanggalVaksin.setText(textTanggalVaksin, TextView.BufferType.EDITABLE);
+            
+        }
     }
 
     @Override
@@ -110,9 +140,11 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.simpanVaksin) {
+        if (view.getId() == R.id.simpanVaksin && isEdit) {
             uploadData(namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
                     ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
+        } else if (view.getId() == R.id.simpanVaksin && !isEdit) {
+            updateData();    
         } else if (view.getId() == R.id.batalVaksin) {
             clearData();
         } else if (view.getId() == R.id.tanggalLahir) {
@@ -120,6 +152,9 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         } else if (view.getId() == R.id.tanggalVaksin) {
             showDatePicker(R.id.tanggalVaksin);
         }
+    }
+
+    private void updateData() {
     }
 
     private void showDatePicker(int viewId) {

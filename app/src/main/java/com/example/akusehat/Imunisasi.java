@@ -20,6 +20,14 @@ public class Imunisasi implements Parcelable {
     protected Imunisasi(Parcel in) {
         namaAnak = in.readString();
         umur = in.readInt();
+        hariLahir = in.readInt();
+        bulanLahir = in.readInt();
+        tahunLahir = in.readInt();
+        hariVaksin = in.readInt();
+        bulanVaksin = in.readInt();
+        tahunVaksin = in.readInt();
+        jenisVaksin = in.readString();
+        vaksinKe = in.readInt();
     }
 
     public Imunisasi(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,

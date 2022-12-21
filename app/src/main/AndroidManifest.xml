@@ -20,13 +20,6 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".UpdateVaksinActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
             android:name=".DaftarImunisasiActivity"
             android:exported="false">
             <meta-data
