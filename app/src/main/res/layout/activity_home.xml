@@ -34,6 +34,7 @@
             android:layout_height="match_parent" />
 
         <ImageButton
+            android:id="@+id/logout_button"
             android:layout_width="36dp"
             android:layout_height="match_parent"
             android:layout_gravity="end|center_horizontal"
@@ -66,7 +67,7 @@
                 android:adjustViewBounds="true"
                 android:background="@drawable/homecard_imgbg"
                 android:maxHeight="130dp"
-                app:srcCompat="@drawable/foto2"/>
+                app:srcCompat="@drawable/foto2" />
 
             <TextView
                 android:id="@+id/text_imunisasi"
@@ -86,6 +87,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/card_profil"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -125,6 +127,7 @@
         android:layout_marginTop="12dp">
 
         <LinearLayout
+            android:id="@+id/card_about"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -158,6 +161,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/card_artikel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -175,7 +179,7 @@
                 app:srcCompat="@drawable/foto2" />
 
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/waktu_vaksin_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fontFamily="@font/poppins_semibold"

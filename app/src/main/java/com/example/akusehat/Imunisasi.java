@@ -15,6 +15,27 @@ public class Imunisasi implements Parcelable {
     private String jenisVaksin;
     private int vaksinKe;
 
+    public Imunisasi() {}
+
+    protected Imunisasi(Parcel in) {
+        namaAnak = in.readString();
+        umur = in.readInt();
+    }
+
+    public Imunisasi(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
+                     int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
+        this.namaAnak = namaAnak;
+        this.umur = umur;
+        this.hariLahir = hariLahir;
+        this.bulanLahir = bulanLahir;
+        this.tahunLahir = tahunLahir;
+        this.hariVaksin = hariVaksin;
+        this.bulanVaksin = bulanVaksin;
+        this.tahunVaksin = tahunVaksin;
+        this.jenisVaksin = jenisVaksin;
+        this.vaksinKe = vaksinKe;
+    }
+
     public String getNamaAnak() {
         return namaAnak;
     }
@@ -60,25 +81,6 @@ public class Imunisasi implements Parcelable {
     }
 
     public void setVaksinKe(int vaksinKe) {
-        this.vaksinKe = vaksinKe;
-    }
-
-    protected Imunisasi(Parcel in) {
-        namaAnak = in.readString();
-        umur = in.readInt();
-    }
-
-    public Imunisasi(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
-                     int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
-        this.namaAnak = namaAnak;
-        this.umur = umur;
-        this.hariLahir = hariLahir;
-        this.bulanLahir = bulanLahir;
-        this.tahunLahir = tahunLahir;
-        this.hariVaksin = hariVaksin;
-        this.bulanVaksin = bulanVaksin;
-        this.tahunVaksin = tahunVaksin;
-        this.jenisVaksin = jenisVaksin;
         this.vaksinKe = vaksinKe;
     }
 
@@ -133,5 +135,15 @@ public class Imunisasi implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.namaAnak);
+        parcel.writeInt(this.umur);
+        parcel.writeInt(this.hariLahir);
+        parcel.writeInt(this.bulanLahir);
+        parcel.writeInt(this.tahunLahir);
+        parcel.writeInt(this.hariVaksin);
+        parcel.writeInt(this.bulanVaksin);
+        parcel.writeInt(this.tahunVaksin);
+        parcel.writeString(this.jenisVaksin);
+        parcel.writeInt(this.vaksinKe);
     }
 }

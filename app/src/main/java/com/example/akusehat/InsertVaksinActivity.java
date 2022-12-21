@@ -151,7 +151,7 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
                 .setValue(imunisasi)
                 .addOnSuccessListener(this,
                         unused -> Toast.makeText(InsertVaksinActivity.this, "Tambah " +
-                                        "data berhasil!", Toast.LENGTH_SHORT).show())
+                                "data berhasil!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(this,
                         e -> Toast.makeText(InsertVaksinActivity.this,
                                 "Gagal menambah data", Toast.LENGTH_SHORT).show());
