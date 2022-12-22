@@ -2,7 +2,9 @@ package com.example.akusehat;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.helper.widget.MotionEffect;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -19,8 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.Objects;
@@ -140,11 +146,14 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.simpanVaksin && isEdit) {
+        if (view.getId() == R.id.simpanVaksin && !isEdit) {
             uploadData(namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
                     ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
-        } else if (view.getId() == R.id.simpanVaksin && !isEdit) {
-            updateData();    
+            finish();
+        } else if (view.getId() == R.id.simpanVaksin && isEdit) {
+            updateData(this.editData, namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
+                    ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
+            finish();
         } else if (view.getId() == R.id.batalVaksin) {
             clearData();
         } else if (view.getId() == R.id.tanggalLahir) {
@@ -152,9 +161,6 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         } else if (view.getId() == R.id.tanggalVaksin) {
             showDatePicker(R.id.tanggalVaksin);
         }
-    }
-
-    private void updateData() {
     }
 
     private void showDatePicker(int viewId) {
@@ -179,11 +185,12 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
 
     private void uploadData(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
                             int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
+        DatabaseReference newImun = databaseReference.child(Objects.requireNonNull(mAuth.getUid()))
+                .push();
         Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir, tahunLahir,
                 hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe);
-        databaseReference.child(Objects.requireNonNull(mAuth.getUid()))
-                .push()
-                .setValue(imunisasi)
+        imunisasi.setUuid(newImun.getKey());
+        newImun.setValue(imunisasi)
                 .addOnSuccessListener(this,
                         unused -> Toast.makeText(InsertVaksinActivity.this, "Tambah " +
                                 "data berhasil!", Toast.LENGTH_SHORT).show())
@@ -192,7 +199,45 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
                                 "Gagal menambah data", Toast.LENGTH_SHORT).show());
     }
 
+
+    private void updateData(Imunisasi editImunisasi, String namaAnak, int umur, int hariLahir,
+                            int bulanLahir, int tahunLahir, int hariVaksin, int bulanVaksin,
+                            int tahunVaksin, String jenisVaksin, int vaksinKe) {
+
+        Intent intent = new Intent(this, ReadVaksinActivity.class);
+
+        query(editImunisasi.getUuid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir,
+                        tahunLahir, hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe);
+                imunisasi.setUuid(editImunisasi.getUuid());
+                Log.d(MotionEffect.TAG, "onDataChange: masuk, "+snapshot.exists());
+                for (DataSnapshot dataQuery : snapshot.getChildren()) {
+                    Log.d(MotionEffect.TAG, "onDataChange: "+dataQuery.toString());
+                    dataQuery.getRef().setValue(imunisasi);
+                }
+                Toast.makeText(InsertVaksinActivity.this, "Ubah " +
+                        "data berhasil!", Toast.LENGTH_SHORT).show();
+                intent.putExtra("data_imunisasi", imunisasi);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(MotionEffect.TAG, "onCancelled: ", error.toException());
+            }
+        });
+    }
+
     private void clearData() {
 
+    }
+
+    private Query query(String uuid) {
+        return databaseReference
+                .child(Objects.requireNonNull(mAuth.getUid()))
+                .orderByChild("uuid")
+                .equalTo(uuid);
     }
 }

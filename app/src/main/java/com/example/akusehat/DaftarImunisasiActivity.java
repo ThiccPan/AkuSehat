@@ -1,5 +1,7 @@
 package com.example.akusehat;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -7,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -85,6 +88,7 @@ public class DaftarImunisasiActivity extends AppCompatActivity implements View.O
                 }
                 rvAdapter.setItems(imunisasiArrayList);
                 rvAdapter.notifyDataSetChanged();
+                Log.d(TAG, "onDataChange: loaddata dipanggil");
             }
 
             @Override

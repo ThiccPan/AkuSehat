@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Imunisasi implements Parcelable {
+    private String uuid;
     private String namaAnak;
     private int umur;
     private int hariLahir;
@@ -18,6 +19,7 @@ public class Imunisasi implements Parcelable {
     public Imunisasi() {}
 
     protected Imunisasi(Parcel in) {
+        uuid = in.readString();
         namaAnak = in.readString();
         umur = in.readInt();
         hariLahir = in.readInt();
@@ -42,6 +44,14 @@ public class Imunisasi implements Parcelable {
         this.tahunVaksin = tahunVaksin;
         this.jenisVaksin = jenisVaksin;
         this.vaksinKe = vaksinKe;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getNamaAnak() {
@@ -143,6 +153,7 @@ public class Imunisasi implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.uuid);
         parcel.writeString(this.namaAnak);
         parcel.writeInt(this.umur);
         parcel.writeInt(this.hariLahir);
