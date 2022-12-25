@@ -2,11 +2,20 @@ package com.example.akusehat;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +23,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,10 +32,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class ReadVaksinActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final int REQUEST_EDIT_IMUNISASI = 201;
     Imunisasi currImunisasi;
     TextView namaAnakTV, umurAnakTV, tanggalLahirTV, jenisVaksinTV, tanggalVaksinTV, vaksinKeTV;
     ImageView previewImunisasiIV;
@@ -33,6 +48,9 @@ public class ReadVaksinActivity extends AppCompatActivity implements View.OnClic
     FirebaseAuth mAuth;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
+
+    StorageReference storageReference;
+    StorageReference refGambarVaksin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +64,7 @@ public class ReadVaksinActivity extends AppCompatActivity implements View.OnClic
         jenisVaksinTV = findViewById(R.id.valueJenisVaksin);
         tanggalVaksinTV = findViewById(R.id.valueTanggalVaksin);
         vaksinKeTV = findViewById(R.id.valVaksinKe);
+        previewImunisasiIV = findViewById(R.id.previewVaksin);
 
         // form btn initialization
         editBtn = findViewById(R.id.editVaksinBtn);
@@ -59,31 +78,51 @@ public class ReadVaksinActivity extends AppCompatActivity implements View.OnClic
 
         currImunisasi = getIntent().getParcelableExtra("data_imunisasi");
 
+        setData();
+        setImage();
+    }
+
+    private void setData() {
         namaAnakTV.setText(currImunisasi.getNamaAnak());
         umurAnakTV.setText(currImunisasi.getUmur() + " tahun");
         tanggalLahirTV.setText(currImunisasi.getHariLahir() + "/" + currImunisasi.getBulanLahir()
-            + "/" + currImunisasi.getTahunLahir());
+                + "/" + currImunisasi.getTahunLahir());
         jenisVaksinTV.setText(currImunisasi.getJenisVaksin());
         tanggalVaksinTV.setText(currImunisasi.getHariVaksin() + "/" + currImunisasi.getBulanVaksin()
                 + "/" + currImunisasi.getTahunVaksin());
         Log.d(TAG, "onCreate: "+currImunisasi.getBulanVaksin());
         vaksinKeTV.setText(String.valueOf(currImunisasi.getVaksinKe()));
+    }
 
-
+    private void setImage() {
+        storageReference = FirebaseStorage.getInstance()
+                .getReference(Objects.requireNonNull(mAuth.getUid()));
+        if (currImunisasi.getIdGambar()!=null) {
+            refGambarVaksin = storageReference
+                    .child(currImunisasi.getIdGambar());
+            refGambarVaksin.getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        Log.d(TAG, "onCreate: " + uri);
+                        com.bumptech.glide.Glide.with(this)
+                                .load(uri)
+                                .into(previewImunisasiIV);
+                    });
+        }
     }
 
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.editVaksinBtn) {
-            Intent intent = new Intent(this, InsertVaksinActivity.class);
-            intent.putExtra("data_imunisasi",currImunisasi);
-            startActivity(intent);
+            Intent startEdit = new Intent(this, InsertVaksinActivity.class);
+            startEdit.putExtra("data_imunisasi",currImunisasi);
+            activityResultLauncher.launch(startEdit);
         } else if (view.getId() == R.id.hapusVaksinBtn) {
             hapusData();
         }
     }
 
     private void hapusData() {
+        hapusGambar();
         query(currImunisasi.getUuid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -105,10 +144,39 @@ public class ReadVaksinActivity extends AppCompatActivity implements View.OnClic
                 });
     }
 
+    private void hapusGambar() {
+        refGambarVaksin.delete().addOnSuccessListener(unused -> {
+            Log.d(TAG, "hapusGambar: hapus berhasil");
+        });
+    }
+
     private Query query(String uuid) {
         return databaseReference
                 .child(Objects.requireNonNull(mAuth.getUid()))
                 .orderByChild("uuid")
                 .equalTo(uuid);
     }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    Log.i(TAG, "onActivityResult: actresult dipanggil"+result.getResultCode());
+                    if (result.getResultCode() == RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        if (data != null) {
+                            currImunisasi = data.getParcelableExtra("data_imunisasi");
+                            Log.d(TAG, "readVaksin onActivityResult: "+currImunisasi.getNamaAnak());
+                            setData();
+                            setImage();
+                        } else {
+                            Log.i(TAG, "onActivityResult: data kosong");
+                        }
+                    }
+                }
+            }
+    );
+
 }

@@ -57,7 +57,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_button" />
 
-    <EditText
+    <SearchView
         android:id="@+id/search_bar_imunisasi"
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -65,13 +65,13 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/bg_form_vaksin"
-        android:ems="10"
-        android:hint="@string/nama_anak"
-        android:inputType="textPersonName"
+        android:queryHint="@string/nama_anak"
+        android:inputType="text"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView7" />
+        app:layout_constraintTop_toBottomOf="@+id/textView7"
+        android:iconifiedByDefault="false"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvListVaksin"

@@ -3,12 +3,18 @@ package com.example.akusehat;
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.helper.widget.MotionEffect;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,27 +34,41 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.UUID;
 
 public class InsertVaksinActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     TextView judulHalaman;
     EditText namaAnak, umurAnak, tanggalLahir, tanggalVaksin;
     Button simpanVaksin, batalVaksin;
     ImageButton gambarVaksin;
+    ImageView previewVaksin;
     String jenisVaksin = "kosong";
     int vaksinKe = 0;
     int hariLahir, bulanLahir, tahunLahir;
     int hariVaksin, bulanVaksin, tahunVaksin;
     Imunisasi editData;
     boolean isEdit = false;
+    final Imunisasi[] cloneImunisasi = new Imunisasi[1];
+
+    String currImunUID;
 
     // firebase component
     private FirebaseAuth mAuth;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference storageReference;
+    private String currGambarId;
+    private StorageReference refUploaded;
     private int year, month, day;
+    private Uri filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +84,7 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         simpanVaksin = findViewById(R.id.simpanVaksin);
         batalVaksin = findViewById(R.id.batalVaksin);
         gambarVaksin = findViewById(R.id.gambarVaksin);
+        previewVaksin = findViewById(R.id.previewVaksin);
 
         // jenisVaksin spinner init
         Spinner spinnerVaksin = (Spinner) findViewById(R.id.jenisVaksin);
@@ -84,11 +106,14 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("vaksin");
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference(Objects.requireNonNull(mAuth.getUid()));
 
         simpanVaksin.setOnClickListener(this);
         batalVaksin.setOnClickListener(this);
         tanggalLahir.setOnClickListener(this);
         tanggalVaksin.setOnClickListener(this);
+        gambarVaksin.setOnClickListener(this);
 
         Calendar calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
@@ -147,19 +172,107 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.simpanVaksin && !isEdit) {
+            uploadImage();
             uploadData(namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
-                    ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
+                    , hariLahir, bulanLahir, tahunLahir, hariVaksin, bulanVaksin, tahunVaksin
+                    , jenisVaksin, vaksinKe, currGambarId);
             finish();
         } else if (view.getId() == R.id.simpanVaksin && isEdit) {
+            hapusGambar(editData.getIdGambar());
+            uploadImage();
             updateData(this.editData, namaAnak.getText().toString(), Integer.parseInt(umurAnak.getText().toString())
-                    ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin,vaksinKe);
+                    ,hariLahir,bulanLahir,tahunLahir,hariVaksin,bulanVaksin, tahunVaksin,jenisVaksin
+                    ,vaksinKe,currGambarId);
             finish();
         } else if (view.getId() == R.id.batalVaksin) {
-            clearData();
+            finish();
         } else if (view.getId() == R.id.tanggalLahir) {
             showDatePicker(R.id.tanggalLahir);
         } else if (view.getId() == R.id.tanggalVaksin) {
             showDatePicker(R.id.tanggalVaksin);
+        } else if (view.getId() == R.id.gambarVaksin) {
+            selectImage();
+        }
+    }
+
+    private void selectImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(
+                Intent.createChooser(
+                        intent,
+                        "Select Image from here..."),
+                22);
+    }
+
+    // UploadImage method
+    private void uploadImage()
+    {
+        if (filePath != null) {
+
+            // Defining the child of storageReference
+            this.currGambarId = UUID.randomUUID().toString();
+            refUploaded = storageReference
+                    .child(this.currGambarId);
+
+            // adding listeners on upload
+            // or failure of image
+            refUploaded.putFile(filePath)
+                    .addOnSuccessListener(
+                            taskSnapshot -> {
+                                // Image uploaded successfully
+                                // Dismiss dialog
+                                Toast
+                                        .makeText(InsertVaksinActivity.this,
+                                                "Image Uploaded!!",
+                                                Toast.LENGTH_SHORT)
+                                        .show();
+                            })
+
+                    .addOnFailureListener(e -> {
+                        // Error, Image not uploaded
+                        Toast
+                                .makeText(InsertVaksinActivity.this,
+                                        "Failed " + e.getMessage(),
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    });
+        }
+    }
+
+    private void hapusGambar(String idGambar) {
+        if (filePath!=null) {
+            storageReference.child(idGambar).delete().addOnSuccessListener(unused -> {
+                Log.d(TAG, "hapusGambar: hapus berhasil");
+            });
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 22
+                && resultCode == RESULT_OK
+                && data != null
+                && data.getData() != null) {
+
+            // Get the Uri of data
+            filePath = data.getData();
+            try {
+
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore
+                        .Images
+                        .Media
+                        .getBitmap(
+                                getContentResolver(),
+                                filePath);
+                previewVaksin.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                // Log the exception
+                e.printStackTrace();
+            }
         }
     }
 
@@ -184,11 +297,14 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
     }
 
     private void uploadData(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
-                            int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
+                            int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin,
+                            int vaksinKe, String idGambar) {
         DatabaseReference newImun = databaseReference.child(Objects.requireNonNull(mAuth.getUid()))
                 .push();
+        Log.d(TAG, "uploadData: "+idGambar);
         Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir, tahunLahir,
-                hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe);
+                hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe, idGambar);
+        currImunUID = newImun.getKey();
         imunisasi.setUuid(newImun.getKey());
         newImun.setValue(imunisasi)
                 .addOnSuccessListener(this,
@@ -202,36 +318,47 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
 
     private void updateData(Imunisasi editImunisasi, String namaAnak, int umur, int hariLahir,
                             int bulanLahir, int tahunLahir, int hariVaksin, int bulanVaksin,
-                            int tahunVaksin, String jenisVaksin, int vaksinKe) {
+                            int tahunVaksin, String jenisVaksin, int vaksinKe, String idGambar) {
 
-        Intent intent = new Intent(this, ReadVaksinActivity.class);
+        Intent intent = new Intent();
 
+        if (filePath == null) {
+            idGambar = editImunisasi.getIdGambar();
+        }
+        String finalIdGambar = idGambar;
+        Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir,
+                tahunLahir, hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe, finalIdGambar);
+        imunisasi.setUuid(editImunisasi.getUuid());
+        cloneImunisasi[0] = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir,
+                tahunLahir, hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe, finalIdGambar);
+        cloneImunisasi[0].setUuid(editImunisasi.getUuid());
         query(editImunisasi.getUuid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Imunisasi imunisasi = new Imunisasi(namaAnak, umur, hariLahir, bulanLahir,
-                        tahunLahir, hariVaksin, bulanVaksin, tahunVaksin, jenisVaksin, vaksinKe);
-                imunisasi.setUuid(editImunisasi.getUuid());
                 Log.d(MotionEffect.TAG, "onDataChange: masuk, "+snapshot.exists());
-                for (DataSnapshot dataQuery : snapshot.getChildren()) {
-                    Log.d(MotionEffect.TAG, "onDataChange: "+dataQuery.toString());
-                    dataQuery.getRef().setValue(imunisasi);
-                }
+
+                Iterator<DataSnapshot> iterator = snapshot.getChildren().iterator();
+                DataSnapshot dataQuery = iterator.next();
+                Log.d(MotionEffect.TAG, "onDataChange: " + dataQuery.toString());
+                dataQuery.getRef().setValue(imunisasi);
+
                 Toast.makeText(InsertVaksinActivity.this, "Ubah " +
                         "data berhasil!", Toast.LENGTH_SHORT).show();
-                intent.putExtra("data_imunisasi", imunisasi);
-                startActivity(intent);
+//                intent.putExtra("data_imunisasi", imunisasi);
+//                if (getParent() == null) {
+//                    setResult(Activity.RESULT_OK, intent);
+//                } else {
+//                    getParent().setResult(Activity.RESULT_OK, intent);
+//                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(MotionEffect.TAG, "onCancelled: ", error.toException());
             }
+
         });
-    }
-
-    private void clearData() {
-
+        onBackPressed();
     }
 
     private Query query(String uuid) {
@@ -239,5 +366,18 @@ public class InsertVaksinActivity extends AppCompatActivity implements AdapterVi
                 .child(Objects.requireNonNull(mAuth.getUid()))
                 .orderByChild("uuid")
                 .equalTo(uuid);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        Log.d(TAG, "onBackPressed: "+cloneImunisasi[0].getIdGambar());
+        intent.putExtra("data_imunisasi", cloneImunisasi[0]);
+        if (getParent() == null) {
+            setResult(Activity.RESULT_OK, intent);
+        } else {
+            getParent().setResult(Activity.RESULT_OK, intent);
+        }
+        super.onBackPressed();
     }
 }

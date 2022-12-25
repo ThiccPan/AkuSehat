@@ -15,6 +15,15 @@ public class Imunisasi implements Parcelable {
     private int tahunVaksin;
     private String jenisVaksin;
     private int vaksinKe;
+    private String idGambar;
+
+    public String getIdGambar() {
+        return idGambar;
+    }
+
+    public void setIdGambar(String idGambar) {
+        this.idGambar = idGambar;
+    }
 
     public Imunisasi() {}
 
@@ -30,10 +39,11 @@ public class Imunisasi implements Parcelable {
         tahunVaksin = in.readInt();
         jenisVaksin = in.readString();
         vaksinKe = in.readInt();
+        idGambar = in.readString();
     }
 
     public Imunisasi(String namaAnak, int umur, int hariLahir, int bulanLahir, int tahunLahir,
-                     int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe) {
+                     int hariVaksin, int bulanVaksin, int tahunVaksin, String jenisVaksin, int vaksinKe, String idGambar) {
         this.namaAnak = namaAnak;
         this.umur = umur;
         this.hariLahir = hariLahir;
@@ -44,6 +54,7 @@ public class Imunisasi implements Parcelable {
         this.tahunVaksin = tahunVaksin;
         this.jenisVaksin = jenisVaksin;
         this.vaksinKe = vaksinKe;
+        this.idGambar = idGambar;
     }
 
     public String getUuid() {
@@ -164,5 +175,6 @@ public class Imunisasi implements Parcelable {
         parcel.writeInt(this.tahunVaksin);
         parcel.writeString(this.jenisVaksin);
         parcel.writeInt(this.vaksinKe);
+        parcel.writeString(this.idGambar);
     }
 }

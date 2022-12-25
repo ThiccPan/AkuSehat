@@ -28,6 +28,11 @@ public class rvVaksinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.imunisasiList = imunisasiList;
     }
 
+    public void setFilteredList(ArrayList<Imunisasi> filteredList) {
+        this.imunisasiList = filteredList;
+        notifyDataSetChanged();
+    }
+
     public static class ImunisasiVH extends RecyclerView.ViewHolder {
         TextView namaVaksin;
         TextView namaAnak;

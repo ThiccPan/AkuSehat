@@ -108,8 +108,17 @@
                 android:id="@+id/gambarVaksin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_form_upload_2"/>
+
+            <ImageView
+                android:id="@+id/previewVaksin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                tools:srcCompat="@tools:sample/avatars"
+                android:maxHeight="200dp"
+                android:layout_marginBottom="32dp"/>
 
             <Button
                 android:id="@+id/simpanVaksin"
@@ -125,7 +134,7 @@
                 android:layout_height="56dp"
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/red_cancel"
-                android:text="Hapus Data"/>
+                android:text="Batal"/>
         </LinearLayout>
     </ScrollView>
 
